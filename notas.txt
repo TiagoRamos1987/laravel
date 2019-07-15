@@ -1,0 +1,611 @@
+$ composer
+$ node -v
+$ npm -v
+$ laravel
+$ echo $PATH
+$ laravel new free
+$ cd free
+$ phpstorm .
+$ php artisan
+$ php artisan serve
+http://127.0.0.1:8000
+http://localhost:81/laravel/laravel/public/ -- Home
+http://localhost:81/laravel/laravel/public/about
+http://localhost:81/laravel/laravel/public/services
+http://localhost:81/laravel/laravel/public/posts
+http://localhost:81/laravel/laravel/public/posts/create
+http://localhost:81/laravel/laravel/public/storage/cover_images/4ljaHd7pfZCtRtdeKtgORw_r.jpg
+
+
+http://localhost:81/phpmyadmin/
+
+$ php artisan make:controller PagesController
+
+install Laravel Blade Snippets
+
+$ npm install -- node modules
+
+$ npm run dev -- atualization
+
+$ npm run watch -- atualization
+
+--  Models & Database Migrations
+create database phpmyadmin
+.env 
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+$ php artisan make:controller PostsController
+$ php artisan make:model Post -m     -- create table Post
+Providers/AppServiceProvider -- alter file
+use Illuminate\Support\Facades\Schema;
+public function boot()
+    {
+        Schema::defaultStringLength(191);
+    }
+
+$ php artisan migrate -- execute database
+$ php artisan tinker  -- insert table
+>>> App\Post::count()
+>>> $post = new App\Post();
+>>> $post->title = 'Post One';
+>>> $post->body = 'This is the post body';
+>>> $post->save();
+>>> $post = new App\Post(); -- new insert table
+>>> $post->title = 'Post Two';
+>>> $post->body = 'This is the post two';
+>>> $post->save();
+>>> quit
+
+PostsController.php -- alter file
+
+delete PostsController.php
+$ php artisan make:controller PostsController --resource
+
+routes/web.php -- alter file
+Route::resource('posts', 'PostsController');
+
+$ php artisan route:list
+
+--  Fetching Data With Eloquent 
+create table in Post.php
+alter PostsController.php
+views/posts create index.blade.php
+alter PostsController.php
+use App\Post;
+
+public function index()
+    {
+        return Post::all();
+        return view('posts.index');
+    }
+
+--  Forms & Saving Data
+create.blade.php
+https://laravelcollective.com/
+$ composer require "laravelcollective/html":"^5.4.0"
+config/app.php
+'providers' => [
+Collective\Html\HtmlServiceProvider::class,
+'aliases' => [
+'Form' => Collective\Html\FormFacade::class,
+'Html' => Collective\Html\HtmlFacade::class,
+resources/views/inc
+messages.blade.php
+alter file app.blade.php
+@include('inc.messages')
+create messages.blade.php
+
+https://github.com/UniSharp/laravel-ckeditor
+$ composer require unisharp/laravel-ckeditor
+
+config/app.php
+Add  'providers' => [
+Unisharp\Ckeditor\ServiceProvider::class,
+$ php artisan vendor:publish --tag=ckeditor
+
+views/app.blade.php
+<script src="/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace( 'article-ckeditor' );
+    </script>
+
+create.blade.php
+{% comment %} {{Form::textarea('body', '', ['id' => 'article-ckeditor', ..................... {% endcomment %}
+15:00 -- https://www.youtube.com/watch?v=-QapNzUE4V0&list=PLillGF-RfqbYhQsN5WMXy6VsDMKGadrJ-&index=7
+         
+-- Edit & Delete Data
+create edit.blade.php
+alter PostsController
+alter show.blade.php
+$ php artisan route:list        
+
+-- User Authentication
+database/migrations/..._create_users_table.php
+$ php artisan make:auth
+> yes
+
+cut nav app.blade.php
+paste nav navbar.blade.php
+
+copy link paste <!-- Left Side Of Navbar -->
+
+@include('inc.navbar') in app.blade.php
+
+remove 1º Navbar
+
+Name Tiago Ramos
+E-Mail Address tiagoramos2905@hotmail.com
+Password 12345678
+
+HomeController.php -> DashboardController
+
+http/auth/LoginController.php 
+protected $redirectTo = '/dashboard';
+
+http/auth/RegisterController.php
+protected $redirectTo = '/dashboard';
+
+http/auth/ResetPasswordController.php
+protected $redirectTo = '/dashboard';
+
+routes/web.php
+Route::get('/dashboard', 'DashboardController@index');
+
+views/home.blade.php -> dashboard.blade.php
+
+edit dashboard.blade.php
+<a class="btn btn-outline-primary" href="http://localhost:81/laravel/laravel/public/posts/create">Create Post</a>
+<h3>Your Blog Posts</h3>
+
+$ php artisan make:migration add_user_id_to_posts
+edit _add_user_id_to_posts
+
+$ php artisan migrate
+
+edit Http/Controllers/PostsController
+$post->user_id = auth()->user()->id;
+
+edit app.blade.php
+https://github.com/UniSharp/laravel-ckeditor
+<script src="/vendor/unisharp/laravel-ckeditor/ckeditor.js"></script>
+    <script>
+        CKEDITOR.replace( 'article-ckeditor' );
+    </script>
+
+-- Model Relationships
+
+edit Post.php
+public function user(){
+        return $this->belongsTo('App\User');
+    }
+
+edit User.php
+public function posts(){
+        return $this->hasMany('App\Post');
+    }
+
+edit DashboardController
+public function index()
+    {
+        $user_id = auth()->user()->id;
+        $user = User::find($user_id);
+        return view('dashboard')->with('posts', $user->posts);
+    }
+
+edit dashboard.blade.php
+@if(count($posts) > 0)
+    <table class="table table-stripped">
+        <tr>
+            <th>Title</th>
+            <th></th>
+            <th></th>
+        </tr>
+        @foreach($posts as $post)
+            <tr>
+                <th>{{$post->title}}</th>
+                <th><a href="http://localhost:81/laravel/laravel/public/posts/{{$post->id}}/edit" class="btn btn-outline-primary">Edit</a></th>
+                <th></th>
+            </tr>
+        @endforeach
+    <table>
+    @else
+        <p>You have no posts</p>
+@endif
+
+register user
+William Bradley
+williambradley@hotmail.com
+12345678
+
+edit dashboard.blade.php
+{!!Form::open(['action'=> ['PostsController@destroy', $post->id], 'method' => 'POST', 'class' => 'btn btn'])!!}
+{{Form::hidden('_method', 'DELETE')}}
+{{Form::submit('Delete', ['class' => 'btn btn-danger'])}}
+{!!Form::close()!!}
+
+edit index.blade.php
+<small>Written on {{$post->created_at}} by {{$post->user->name}}</small>
+
+edit show.blade.php
+<small>Written on {{$post->created_at}} by {{$post->user->name}}</small>
+
+-- Access Control
+
+edit PostsController.php
+/**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth', ['except' => ['index', 'show'] ]);
+    }
+
+edit show.blade.php
+@if(!Auth::guest())
+    @if(Auth::user()->id == $post->user_id)
+        <a href="http://localhost:81/laravel/laravel/public/posts/{{$post->id}}/edit" class="btn btn-outline-primary">Edit</a>
+        {!!Form::open(['action'=> ['PostsController@destroy', $post->id], 'method' => 'POST', 'class' => 'btn btn'])!!}
+        {{Form::hidden('_method', 'DELETE')}}
+        {{Form::submit('Delete', ['class' => 'btn btn-danger'])}}
+        {!!Form::close()!!}
+        <a class="btn btn-outline-primary" href="http://localhost:81/laravel/laravel/public/posts">Go Back</a>
+    @endif
+@endif
+
+edit PostsController.php
+public function edit($id)
+    {
+        $post = Post::find($id);
+
+        // Check for correct user
+        if(auth()->user()->id !==$post->user_id){
+            return redirect('http://localhost:81/laravel/laravel/public/posts')->with('error', 'Unauthorized Page');
+        }
+
+        return view('posts.edit')->with('post', $post);
+    }
+
+edit PostsController.php
+public function destroy($id)
+    {
+        // Destroy Post
+        $post = Post::find($id);
+
+        // Check for correct user
+        if(auth()->user()->id !==$post->user_id){
+            return redirect('http://localhost:81/laravel/laravel/public/posts')->with('error', 'Unauthorized Page');
+        }
+
+        $post->delete();
+        return redirect('http://localhost:81/laravel/laravel/public/posts')->with('success', 'Post Destroyed');
+    
+    }
+
+-- File Uploading & Finishing Up
+edit create.blade.php
+<div class="form-group">
+    {{Form::file('cover_image')}}
+</div>
+{!! Form::open(['action' => 'PostsController@store', 'method' => 'POST', 'enctype' => 'multipart/data']) !!}
+
+$ php artisan make:migration add_cover_image_to_posts
+$ php artisan migrate
+
+edit PostsController.php
+'cover_image' => 'image |nullable[max:1999'
+
+edit PostsController.php
+// Handle file Upload
+        if($request->hasFile()){
+            // Get filename with the extension
+            $fileNameWithExt = $request->file('cover_image')->getClientOriginalImage();
+            // Get just filename
+            $filename = pathinfo($fileNameWithExt, PATHINFO_FILENAME);
+            // Get just ext
+            $extension = $request->file('cover_image')->getOriginalClientExtension();
+            // Filename to store
+            $fileNameToStore = $filename.'_'.time().'.'.$extension;
+            // Upload Image
+            $path = $request->file('cover_image')->storeAs('public/cover_images', $fileNameToStore);
+        
+        
+        
+        } else{
+            $fileNameToStore = 'noimage.jpg';
+        }
+
+$ php artisan storage:link
+
+copy create.blade.php
+<div class="form-group">
+    {{Form::file('cover_image')}}
+</div>
+
+paste edit.blade.php
+
+
+-- Deploy Laravel To Shared Hosting The Easy Way
+https://www.inmotionhosting.com/
+create database
+laravel
+create user
+username:
+password:
+export database
+cpanel>phpmyadmin
+import database
+copy public = paste public in cpanel
+copy files .....................
+edit index.php
+require __DIR__.'/../laravel/vendor/autoload.php';
+$app = require_once __DIR__.'/../laravel/bootstrap/app.php';
+edit .env
+DB_DATABASE=laravel
+DB_USERNAME=root
+DB_PASSWORD=
+
+create new file symlinkcreate.php
+<?php
+    symlink('/home/codeskillet/lsapp/storage/app/public', '/home/codeskillet/public_html/storage');
+paste public
+../symlinkcreate.php execute
+drop file
+
+https://filezilla-project.org/
+
+development laravel
+developmentlaravel@gmail.com
+YhQsN5WMXy6VsDMKGa
+laravel
+YhQsN5WMXy6VsDMKGa
+
+https://www.youtube.com/watch?v=AL8PCThJ9c4&list=PLillGF-RfqbYhQsN5WMXy6VsDMKGadrJ-&index=12
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+resources/views
+$ php artisan make:auth
+$ npm -v
+$ npm install
+$ npm run dev
+$ npm run dev
+$ php artisan
+$ vim database/database.sqlite
+~ :wq
+database/database.sqlite
+.env
+DB_CONNECTION=sqlite
+$ php artisan migrate
+senha: F6891Xvbr2
+
+Tiago Ramos
+tiagoramos2905@hotmail.com
+tiago.ramos
+
+resources/views/layouts/app.blade.php
+
+views/auth/register.blade.php -- form users
+http/auth/RegisterController.php -- form users
+database/migrations/..._create_users_table.php -- form users
+
+$ npm run dev
+$ php artisan serve
+
+$ php artisan tinker
+>>> User::all();     -- view user
+>>> exit
+$ php artisan migrate:fresh
+
+http/providers/User.php -- form users
+views/app.blade.php -- form users
+
+HomeController.php -- return view('home');
+
+$ php artisan help make:controller
+$ php artisan make:controller ProfilesController
+
+Http/Controllers/ProfilesController.php -- return view('home');
+routes/web.php -- Route::get('/home', 'ProfileController@index')->name('home');
+
+https://laravel.com/docs/5.1/controllers#restful-resource-controllers
+app/user.php -- home
+
+http://127.0.0.1:8000/profile/2
+
+$ php artisan help make:model
+$ php artisan make:model Profile -m
+
+$ php artisan migrate
+
+$ php artisan tinker
+>>> $profile = new \App\Profile();
+>>> $profile->title = 'Cool Title';
+>>> $profile->description = 'Description';
+>>> $profile->user_id = 1;
+>>> $profile->save();
+>>> $profile->User
+>>> $profile
+>>> $profile->user
+>>> $user =App\User::find(1);
+>>> $user->profile;
+>>> $user
+>>> $user->profile->url="laravel.com";
+>>> $user->save();
+>>> $user->push();
+>>> exit;
+$ php artisan make:model Post -m
+
+$ php artisan migrate 
+
+http://127.0.0.1:8000/profile/1
+
+$ php artisan make:controller Postscontroller
+
+http://127.0.0.1:8000/p/create
+
+$ php artisan tinker
+>>> Post::all();
+>>> exit;
+
+$ php artisan storage:link
+$ php artisan tinker
+>>> Post::truncate();
+
+http://127.0.0.1:8000/profile/1
+
+$ composer require intervention/image
+
+http://image.intervention.io/
+
+$ php artisan help make:policy
+$ php artisan help make:policy ProfilePolicy -m Profile -- error help
+$ php artisan make:policy ProfilePolicy -m Profile
+
+$ php artisan migrate:fresh
+
+$ npm run watch
+
+$ php artisan make:controller FollowsController
+$ php artisan help make:migration
+$ php artisan make:migration creates_profile_user_pivot_table --create profile_user 
+
+$ php artisan migrate
+$ php artisan tinker
+>>> $user = User::find(1);
+>>> $user->following
+>>> $user->following
+>>> $user->fresh()->following
+
+
+$ composer require laravel/telescope
+$ php artisan telescope:install
+$ php artisan migrate
+$ php artisan telescope:clear
+$ php artisan make:mail NewUserWelcomeMail -m emails.welcome-email
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+https://www.youtube.com/watch?v=ImtZ5yENzgE&t=956s
+
+2:25:36 -- image
+
+2:53:07
+
+3:07:33
+
+3:17:07
+
+https://fonts.google.com/
+embed/@import
+sass/_variables.scss
+sass/app.scss
+
+
+[!] Aliasing 'User' to 'App\User' for this Tinker session.
+=> Illuminate\Database\Eloquent\Collection {#3082
+     all: [
+       App\User {#3084
+         id: "1",
+         name: "Tiago Ramos",
+         email: "tiagoramos2905@hotmail.com",
+         username: "tiago",
+         email_verified_at: null,
+         created_at: "2019-05-27 22:55:02",
+         updated_at: "2019-05-27 22:55:02",
+       },
+     ],
+   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
